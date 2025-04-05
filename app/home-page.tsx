@@ -1,13 +1,17 @@
 import * as React from 'react';
 import { BottomNavigation, Text } from 'react-native-paper';
+import { View, Image, StyleSheet, Dimensions } from 'react-native';
 import GoalsScreen from './goals';
+import ProfilePage from './profile';
+
+// Dummy placeholder screens
 const ChartsRoute = () => <Text>Charts</Text>;
 const HomeRoute = () => <Text>Home</Text>;
 const HistoryRoute = () => <Text>History</Text>;
-const ProfileRoute = () => <Text>Profile</Text>;
 
 const MyComponent = () => {
 	const [index, setIndex] = React.useState(2); // Center tab (Home)
+
 	const [routes] = React.useState([
 		{
 			key: 'goals',
@@ -46,16 +50,40 @@ const MyComponent = () => {
 		visualization: ChartsRoute,
 		home: HomeRoute,
 		history: HistoryRoute,
-		profile: ProfileRoute,
+		profile: ProfilePage,
 	});
 
+	const { width } = Dimensions.get('window');
+
 	return (
-		<BottomNavigation
-			navigationState={{ index, routes }}
-			onIndexChange={setIndex}
-			renderScene={renderScene}
-		/>
+		<View style={styles.container}>
+			{/* Peeking Cat */}
+			<Image
+				source={require('../assets/images/peek-cat.gif')}
+				style={[styles.catImage, { left: width / 2 - 35 }]} // Adjust 35 if image width changes
+			/>
+
+			<BottomNavigation
+				navigationState={{ index, routes }}
+				onIndexChange={setIndex}
+				renderScene={renderScene}
+			/>
+		</View>
 	);
 };
 
 export default MyComponent;
+
+const styles = StyleSheet.create({
+	container: {
+		flex: 1,
+	},
+	catImage: {
+		position: 'absolute',
+		bottom: 50, // Adjust based on tab bar height
+		width: 70,
+		height: 70,
+		zIndex: 10,
+		resizeMode: 'contain',
+	},
+});
