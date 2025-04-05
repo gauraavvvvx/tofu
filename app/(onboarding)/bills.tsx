@@ -126,10 +126,9 @@ export default function RecurringPayment() {
                                 setError('')
                             }}
                             mode="outlined"
-                            className="mb-4"
                         />
 
-                        <View className="flex-row items-center border border-gray-300 rounded-lg px-4 h-12 mb-4">
+                        <View className="flex-row items-center pt-4 border border-gray-300 rounded-lg px-4 h-12 mb-4">
                             <Text className="text-lg text-gray-700 mr-2">
                                 $
                             </Text>
