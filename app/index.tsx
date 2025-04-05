@@ -1,7 +1,9 @@
-import { Text, View } from "react-native";
+import { Button, Text, View } from "react-native";
 import "../global.css";
+import { Link, useRouter } from "expo-router";
 
 export default function Index() {
+  const router = useRouter();
   return (
     <View
       style={{
@@ -10,7 +12,9 @@ export default function Index() {
         alignItems: "center",
       }}
     >
-      <Text className="text-xl">Edit app/index.tsx to edit this screen.</Text>
+
+      <Button onPress={() => {router.navigate("/payments/scanner")}} title="Pay" />
+
     </View>
   );
 }
