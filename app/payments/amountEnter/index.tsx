@@ -2,6 +2,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, Linking, Alert, StyleSheet, AppState, AppStateStatus } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
+import { uploadTransaction } from '@/libs/uploadTransaction';
 
 const UPIPaymentScreen = () => {
   const route = useRouter();
@@ -41,6 +42,19 @@ const UPIPaymentScreen = () => {
     const handleAppStateChange = (nextAppState: string) => {
       if (appState.match(/inactive|background/) && nextAppState === 'active') {
         // App has come back to the foreground
+        uploadTransaction({
+          timestamp: new Date().toISOString(),
+          amount: parseFloat(amount),
+          date: new Date().toISOString(),
+          category: selectedCategory === 'Others' ? customCategory : selectedCategory,
+          savings: roundedAmount - parseFloat(amount),
+          roundedAmount: roundedAmount,
+          transactedTo: upiId,
+        }).then(() => {
+          Alert.alert('Transaction Uploaded', 'Your transaction has been recorded successfully.');
+        }).catch((error) => {
+          console.error('Error uploading transaction:', error);
+        })
         Alert.alert('Congratulations', `you just saved ₹${(roundedAmount - parseFloat(amount)).toFixed(2)}!`);
       }
       setAppState(nextAppState as AppStateStatus);
