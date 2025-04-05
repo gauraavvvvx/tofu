@@ -12,6 +12,8 @@ import {
 import { TextInput, Button } from 'react-native-paper'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import { useRouter } from 'expo-router'
+import { Storage } from 'expo-sqlite/kv-store'
+import React from 'react'
 
 export default function RecurringPayment() {
     const router = useRouter()
@@ -63,6 +65,23 @@ export default function RecurringPayment() {
             setRecurringDate(selectedDate)
         }
         setShowDatePicker(false)
+    }
+
+    const handleSubmit = () => {
+        if (payments.length === 0) {
+            setError('Please add at least one recurring payment.')
+            return
+        }
+        // Save payments to local storage or database
+        Storage.setItem('recurringPayments', JSON.stringify(payments))
+            .then(() => {
+                console.log('Recurring payments saved:', payments)
+            })
+            .catch((error) => {
+                console.error('Error saving recurring payments:', error)
+            })
+        // Navigate to the next page or perform any other action
+        router.dismissAll() // Replace '/next-page' with the actual route
     }
 
     return (
@@ -134,7 +153,11 @@ export default function RecurringPayment() {
                             className="border border-gray-300 rounded-lg h-12 px-4 justify-center mb-4"
                         >
                             <Text
-                                className={`text-base ${recurringDate ? 'text-gray-800' : 'text-gray-400'}`}
+                                className={`text-base ${
+                                    recurringDate
+                                        ? 'text-gray-800'
+                                        : 'text-gray-400'
+                                }`}
                             >
                                 {recurringDate
                                     ? recurringDate.toLocaleDateString(
@@ -214,15 +237,14 @@ export default function RecurringPayment() {
                     </View>
                 )}
 
-                <View>
+                {/* Submit Button */}
+                <View className="mt-10">
                     <Button
-                        mode="text"
-                        onPress={() => router.dismiss(10)}
-                        className="mb-6"
-                        labelStyle={{ color: '#fb923c' }}
-                        style={{ backgroundColor: 'transparent' }}
+                        mode="contained"
+                        onPress={handleSubmit}
+                        buttonColor="#fb923c"
                     >
-                        Lol
+                        Submit
                     </Button>
                 </View>
             </KeyboardAvoidingView>
