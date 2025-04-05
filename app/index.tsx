@@ -2,6 +2,7 @@ import { Text, View } from 'react-native'
 import '../global.css'
 import { Link, useRouter } from 'expo-router'
 import { Button } from 'react-native-paper'
+import React from 'react'
 
 export default function Index() {
     const router = useRouter()

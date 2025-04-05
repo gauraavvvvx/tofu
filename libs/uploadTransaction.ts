@@ -1,10 +1,8 @@
-import { Transaction } from '@/types/schemas';
-import * as SQLite from 'expo-sqlite';
-
+import { Transaction } from '@/types/schemas'
+import * as SQLite from 'expo-sqlite'
 
 export async function uploadTransaction(transaction: Transaction) {
-
-    const db = await SQLite.openDatabaseAsync('./db/transactions.db');
+    const db = await SQLite.openDatabaseAsync('./db/transactions.db')
 
     await db.execAsync(`
         PRAGMA journal_mode = WAL;
@@ -19,22 +17,22 @@ export async function uploadTransaction(transaction: Transaction) {
             transactedTo TEXT NOT NULL
         );
         `)
-    await db.runAsync(`
+    await db.runAsync(
+        `
         INSERT INTO transactions (timestamp, amount, date, category, transactedTo, savings, roundedAmount)
         VALUES (?, ?, ?, ?, ?, ?, ?);
-        `, [
+        `,
+        [
             transaction.timestamp,
             transaction.amount,
             transaction.date,
             transaction.category,
             transaction.transactedTo,
             transaction.savings,
-            transaction.roundedAmount  
-        ]);
-    await db.closeAsync();
-    console.log('Transaction uploaded successfully');
-    return true;
-
-
-
+            transaction.roundedAmount,
+        ]
+    )
+    await db.closeAsync()
+    console.log('Transaction uploaded successfully')
+    return true
 }
