@@ -1,16 +1,42 @@
+import React, { useEffect, useState } from 'react'
 import { Text, View } from 'react-native'
 import '../global.css'
 import { Link, useRouter } from 'expo-router'
 import { checkIfUserExists } from '@/utils/checkIfUserExists'
 import { BottomNavigation } from 'react-native-paper'
-import React, { useState, useEffect } from 'react'
 import GoalsScreen from './goals'
 import HomePage from '@/pages/HomePage'
 import ProfilePage from './profile'
-import ChartScreen from './(onboarding)/viz'
+const ChartsRoute = () => <Text>Charts</Text>
 const HistoryRoute = () => <Text>History</Text>
 export default function Index() {
     const router = useRouter()
+<<<<<<< HEAD
+    return (
+        <View className="flex-1 justify-center items-center bg-orange-50 px-4 rounded-2xl">
+            <View className="w-full max-w-md p-6 bg-white rounded-2xl shadow-md border border-gray-200">
+                <View className="items-center mb-6">
+                    <Text className="text-2xl font-extrabold text-orange-600 mt-6">
+                        Hello, Welcome To T.O.F.
+                        <Link href="/(onboarding)/viz">hi</Link>
+                    </Text>
+                    <Text className="text-base text-gray-600 text-center">
+                        Before you can get started, we need to know more about
+                        you.
+                    </Text>
+                </View>
+                <Button
+                    mode="contained"
+                    onPress={() =>
+                        router.navigate('/(onboarding)/personal_details')
+                    }
+                    contentStyle={{ paddingVertical: 8 }}
+                    labelStyle={{ fontWeight: 'bold' }}
+                    style={{ backgroundColor: '#f97316', borderRadius: 8 }}
+                >
+                    Get Started
+                </Button>
+=======
     const [isLoading, setIsLoading] = useState(true)
     useEffect(() => {
         checkIfUserExists().then((userExists) => {
@@ -57,7 +83,7 @@ export default function Index() {
 
     const renderScene = BottomNavigation.SceneMap({
         goals: GoalsScreen,
-        visualization: ChartScreen,
+        visualization: ChartsRoute,
         home: HomePage,
         history: HistoryRoute,
         profile: ProfilePage,
@@ -71,6 +97,7 @@ export default function Index() {
                 <Text className="text-base text-gray-600 text-center">
                     Pet a cat to reduce loading time
                 </Text>
+>>>>>>> main
             </View>
         )
     } else {
