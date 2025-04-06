@@ -19,8 +19,28 @@ export async function fetchGoalsFromDB(): Promise<Goal[]> {
             )
         `)
 
-        // Query the goals
-        const result = await db.getAllAsync<Goal>('SELECT * FROM goals')
+        // Query only active (not completed) goals
+        const result = await db.getAllAsync<Goal>(
+            'SELECT * FROM goals WHERE completed = 0'
+        )
+
+        db.closeAsync()
+        return result
+    } catch (error) {
+        console.error('Database error:', error)
+        return []
+    }
+}
+
+// Add a new function to fetch completed goals (for history/stats)
+export async function fetchCompletedGoalsFromDB(): Promise<Goal[]> {
+    try {
+        const db = await SQLite.openDatabaseAsync('goals')
+
+        // Query only completed goals
+        const result = await db.getAllAsync<Goal>(
+            'SELECT * FROM goals WHERE completed = 1'
+        )
 
         db.closeAsync()
         return result
