@@ -2,13 +2,12 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Platform, UIManager, TouchableOpacity } from 'react-native';
 import { Button } from 'react-native-paper';
 import * as Animatable from 'react-native-animatable';
-import { User, CalendarDays, Wallet, Pencil, Save } from 'lucide-react-native';
-
+import { User, CalendarDays, Wallet, Pencil, Save, DollarSign } from 'lucide-react-native';
+import { Image } from 'react-native'
 if (Platform.OS === 'android') {
 	UIManager.setLayoutAnimationEnabledExperimental &&
 		UIManager.setLayoutAnimationEnabledExperimental(true);
 }
-
 export default function ProfilePage() {
 	const [editMode, setEditMode] = useState(false);
 	const [name, setName] = useState('Jane Doe');
@@ -18,6 +17,33 @@ export default function ProfilePage() {
 	const toggleEdit = () => {
 		setEditMode(!editMode);
 	};
+	let goal = '1000.00';
+	let savings = '1000.00';
+	const catImages = {
+		angry: require('../assets/images/PuffleAngry.webp'),
+		diss: require('../assets/images/PuffleDiss.webp'),
+		neutral: require('../assets/images/PuffleNeutral.webp'),
+		happy: require('../assets/images/PuffleHappy1.webp'),
+		happy2: require('../assets/images/PuffleHappy2.webp'),
+	};
+	const goalAmount = parseFloat(goal.replace(/[^0-9.]/g, '')); // Remove $ or ₦
+	const savingsAmount = parseFloat(savings.replace(/[^0-9.]/g, ''));
+
+	const satisfaction = (savingsAmount / goalAmount) * 100;
+
+	// Choose mood based on satisfaction %
+	let mood: keyof typeof catImages = 'neutral';
+	if (satisfaction < 20) {
+		mood = 'diss';
+	} else if (satisfaction < 50) {
+		mood = 'angry';
+	} else if (satisfaction < 75) {
+		mood = 'neutral';
+	} else if (satisfaction < 95) {
+		mood = 'happy';
+	} else {
+		mood = 'happy2';
+	}
 
 	const calculateAge = (dobStr: string) => {
 		const birthDate = new Date(dobStr);
@@ -83,9 +109,17 @@ export default function ProfilePage() {
 
 						<View className="flex-row items-center mb-4 justify-center space-x-2">
 							<Wallet size={20} color="#444" />
-							<Text className="text-lg px-4 text-gray-700">Balance:  {balance}</Text>
+							<Text className="text-lg px-4 text-gray-700">Balance: $ {balance}</Text>
 						</View>
 
+						<View className="flex-row items-center mb-4 justify-center space-x-2">
+							<DollarSign size={20} color="#444" />
+							<Text className="text-lg px-4 text-gray-700">Savings: $ {savings}</Text>
+						</View>
+						<View className="flex-row items-center mb-4 justify-center space-x-2">
+							<DollarSign size={20} color="#444" />
+							<Text className="text-lg px-4 text-gray-700">Savings Goal: $ {goal}</Text>
+						</View>
 						<Button
 							mode="outlined"
 							icon={() => <Pencil size={16} />}
@@ -97,6 +131,16 @@ export default function ProfilePage() {
 					</>
 				)}
 			</Animatable.View>
+			<View className="h-40 items-center justify-center">
+				<Image
+					source={catImages[mood]}
+					style={{
+						width: 120, // You can adjust the size
+						height: 120,
+						resizeMode: 'contain',
+					}}
+				/>
+			</View>
 		</View>
 	);
 }
