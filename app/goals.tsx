@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from 'react'
-import { View, Text, TouchableOpacity, StatusBar, SafeAreaView, ScrollView } from 'react-native'
+import {
+    View,
+    Text,
+    TouchableOpacity,
+    StatusBar,
+    SafeAreaView,
+    ScrollView,
+} from 'react-native'
 import GoalsList from '@/components/goals/GoalsList'
 import GoalsModal from '@/components/goals/GoalsModal'
 import { prioritiesOrder } from '../utils/priorities'
@@ -11,7 +18,8 @@ import { Ionicons } from '@expo/vector-icons'
 export default function GoalsScreen() {
     const [goals, setGoals] = useState([])
     const [modalVisible, setModalVisible] = useState(false)
-    const [isStartDatePickerVisible, setStartDatePickerVisible] = useState(false)
+    const [isStartDatePickerVisible, setStartDatePickerVisible] =
+        useState(false)
     const [isEndDatePickerVisible, setEndDatePickerVisible] = useState(false)
     const [newGoal, setNewGoal] = useState({
         name: '',
@@ -82,15 +90,22 @@ export default function GoalsScreen() {
         <SafeAreaView style={{ flex: 1, backgroundColor: '#050f10' }}>
             <StatusBar barStyle="light-content" backgroundColor="#050f10" />
             <View style={{ flex: 1, padding: 16 }}>
-                <Text style={{ fontSize: 24, fontWeight: 'bold', color: '#fff', marginBottom: 16 }}>
+                <Text
+                    style={{
+                        fontSize: 24,
+                        fontWeight: 'bold',
+                        color: '#fff',
+                        marginBottom: 16,
+                    }}
+                >
                     Goals
                 </Text>
-                
+
                 {/* Goals List */}
                 <ScrollView style={{ flex: 1 }}>
                     <GoalsList goals={goals} onDeleteGoal={deleteGoal} />
                 </ScrollView>
-                
+
                 {/* Add Goal Button */}
                 <TouchableOpacity
                     onPress={() => setModalVisible(true)}
@@ -113,7 +128,7 @@ export default function GoalsScreen() {
                 >
                     <Ionicons name="add" size={30} color="#fff" />
                 </TouchableOpacity>
-                
+
                 {/* Modal */}
                 {modalVisible && (
                     <GoalsModal
