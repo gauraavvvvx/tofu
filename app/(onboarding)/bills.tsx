@@ -81,7 +81,7 @@ export default function RecurringPayment() {
                 console.error('Error saving recurring payments:', error)
             })
         // Navigate to the next page or perform any other action
-        await Updates.reloadAsync()
+        router.push('/(onboarding)/balance') // Replace with the actual next route
     }
 
     return (

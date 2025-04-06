@@ -46,6 +46,11 @@ export async function uploadTransaction(transaction: Transaction) {
     const newSavings = temp + transaction.savings
     Storage.setItemSync('savings', JSON.stringify(newSavings))
     await db.closeAsync()
+    let temp2 = Storage.getItemSync('accountBalance')
+    temp2 = temp2 != 'NaN' || temp2 != null ? JSON.parse(temp2) : 0
+    const newBalance = temp2 - transaction.roundedAmount
+    Storage.setItemSync('accountBalance', JSON.stringify(newBalance))
+    console.log('New balance:', newBalance)
     console.log('Transaction uploaded successfully')
     return true
 }
