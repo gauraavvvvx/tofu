@@ -1,14 +1,23 @@
 import React from 'react'
-import { FlatList, View, Text, StyleSheet } from 'react-native'
+import { FlatList, View, Text, StyleSheet, RefreshControl } from 'react-native'
 import GoalItem from './GoalItem'
 
-const GoalsList = ({ goals, onDeleteGoal }) => {
+const GoalsList = ({ goals, onDeleteGoal, refreshing, onRefresh }) => {
+    const updateGoal = async (nextPriorityGoal, newAmount, isCompleted) => {
+        await db.runAsync(
+            'UPDATE goals SET currentAmount = ?, completed = ? WHERE id = ?',
+            [newAmount, isCompleted ? 1 : 0, nextPriorityGoal.id]
+        )
+    }
+
     if (goals.length === 0) {
         return (
             <View style={styles.emptyContainer}>
-                <Text style={styles.emptyText}>No goals yet. Add your first goal!</Text>
+                <Text style={styles.emptyText}>
+                    No active goals. Add a new goal to start saving!
+                </Text>
             </View>
-        );
+        )
     }
 
     return (
@@ -21,6 +30,13 @@ const GoalsList = ({ goals, onDeleteGoal }) => {
             contentContainerStyle={styles.list}
             showsVerticalScrollIndicator={false}
             ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+            refreshControl={
+                <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={onRefresh}
+                    tintColor="#77cc6d"
+                />
+            }
         />
     )
 }
@@ -36,10 +52,10 @@ const styles = StyleSheet.create({
         padding: 20,
     },
     emptyText: {
-        color: '#7c8a93',
         fontSize: 16,
+        color: '#77cc6d',
         textAlign: 'center',
-    }
-});
+    },
+})
 
 export default GoalsList

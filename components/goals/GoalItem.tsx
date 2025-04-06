@@ -1,55 +1,58 @@
 import React from 'react'
-import { Text, TouchableOpacity, Alert, View, StyleSheet } from 'react-native'
-import { Ionicons } from '@expo/vector-icons'
+import { Text, TouchableOpacity, Alert, View } from 'react-native'
 
-// Update this function to handle numeric priority values
+// Update to handle numeric priority values with decimal places
 const getPriorityColor = (priority) => {
-    // Check if priority is a number from the database
+    // For calculated priority values (decimals)
     if (typeof priority === 'number') {
-        switch (priority) {
-            case 4: // VERY_HIGH
-                return '#c12121' // using the negative color for very high priority
-            case 3: // HIGH
-                return '#e06666'
-            case 2: // MODERATE
-                return '#f1c232'
-            case 1: // LOW
-                return '#77cc6d' // using the positive color for low priority
-            default:
-                return '#7c8a93'
-        }
+        if (priority >= 4) return 'bg-red-500' // Very High (4+)
+        if (priority >= 3) return 'bg-orange-500' // High (3-4)
+        if (priority >= 2) return 'bg-yellow-500' // Moderate (2-3)
+        if (priority >= 1) return 'bg-green-500' // Low (1-2)
+        return 'bg-gray-200' // Default
     }
-    // Handle string values for backwards compatibility
+
+    // Legacy support for string values
     switch (priority) {
         case 'VERY_HIGH':
-            return '#c12121'
+            return 'bg-red-500'
         case 'HIGH':
-            return '#e06666'
+            return 'bg-orange-500'
         case 'MODERATE':
-            return '#f1c232'
+            return 'bg-yellow-500'
         case 'LOW':
-            return '#77cc6d'
+            return 'bg-green-500'
         default:
-            return '#7c8a93'
+            return 'bg-gray-200'
     }
 }
 
-// Update this component to display priority as text
+// Format date strings for display (YYYY-MM-DD to DD/MM/YYYY)
+const formatDate = (dateStr) => {
+    if (!dateStr) return 'Not set'
+    const parts = dateStr.split('-')
+    if (parts.length !== 3) return dateStr
+    return `${parts[2]}/${parts[1]}/${parts[0]}`
+}
+
+// Calculate days remaining until deadline
+const calculateDaysRemaining = (endDate) => {
+    if (!endDate) return 'No deadline'
+    const deadline = new Date(endDate)
+    const today = new Date()
+    const timeDiff = deadline.getTime() - today.getTime()
+    const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24))
+    return daysDiff > 0 ? `${daysDiff} days left` : 'Past due'
+}
+
 const GoalItem = ({ item, onDeleteGoal }) => {
-    // Convert numeric priority back to text for display
+    // Convert numeric priority to text for display
     const getPriorityText = (priorityNum) => {
-        switch (priorityNum) {
-            case 4:
-                return 'Very High'
-            case 3:
-                return 'High'
-            case 2:
-                return 'Moderate'
-            case 1:
-                return 'Low'
-            default:
-                return 'Unknown'
-        }
+        if (priorityNum >= 4) return 'Very High'
+        if (priorityNum >= 3) return 'High'
+        if (priorityNum >= 2) return 'Moderate'
+        if (priorityNum >= 1) return 'Low'
+        return 'Unknown'
     }
 
     const handleLongPress = () => {
@@ -57,10 +60,7 @@ const GoalItem = ({ item, onDeleteGoal }) => {
             'Delete Goal',
             `Are you sure you want to delete "${item.name}"?`,
             [
-                {
-                    text: 'Cancel',
-                    style: 'cancel',
-                },
+                { text: 'Cancel', style: 'cancel' },
                 {
                     text: 'Delete',
                     onPress: () => onDeleteGoal(item.id),
@@ -71,141 +71,46 @@ const GoalItem = ({ item, onDeleteGoal }) => {
         )
     }
 
-    // Calculate progress percentage
-    const progressPercentage = (item.currentAmount / item.targetAmount) * 100 || 0
-    const priorityColor = getPriorityColor(item.priority)
+    // Get dates from the item (handling property name differences)
+    const startDate = item.startDate || item.start_date
+    const endDate = item.endDate || item.end_date
+    const daysRemaining = calculateDaysRemaining(endDate)
+
+    // Get user priority and calculated priority
+    const userPriority =
+        item.userPriority ||
+        (typeof item.priority === 'number'
+            ? Math.floor(item.priority)
+            : item.priority)
+    const calculatedPriority =
+        typeof item.priority === 'number' ? item.priority.toFixed(2) : 'N/A'
 
     return (
-        <TouchableOpacity 
-            style={styles.container}
+        <TouchableOpacity
+            className={`p-4 mb-3 rounded-lg ${getPriorityColor(item.priority)} shadow`}
             onLongPress={handleLongPress}
-            activeOpacity={0.7}
         >
-            <View style={styles.header}>
-                <Text style={styles.title}>{item.name}</Text>
-                <View style={[styles.priorityBadge, { backgroundColor: priorityColor }]}>
-                    <Text style={styles.priorityText}>
-                        {typeof item.priority === 'number'
-                            ? getPriorityText(item.priority)
-                            : item.priority}
-                    </Text>
-                </View>
-            </View>
-            
-            <View style={styles.amounts}>
-                <Text style={styles.amountText}>
-                    Goal: <Text style={styles.amountValue}>₹{item.targetAmount.toLocaleString()}</Text>
+            <Text className="text-lg font-semibold text-white">
+                {item.name}
+            </Text>
+            <View className="flex-row justify-between">
+                <Text className="text-sm text-white">
+                    Priority: {getPriorityText(item.priority)} (
+                    {calculatedPriority})
                 </Text>
-                <Text style={styles.amountText}>
-                    Saved: <Text style={styles.amountValue}>₹{(item.currentAmount || 0).toLocaleString()}</Text>
+                <Text className="text-sm text-white font-bold">
+                    {daysRemaining}
                 </Text>
             </View>
-
-            <View style={styles.progressContainer}>
-                <View style={styles.progressBackground}>
-                    <View 
-                        style={[
-                            styles.progressBar, 
-                            { 
-                                width: `${Math.min(progressPercentage, 100)}%`,
-                                backgroundColor: progressPercentage >= 100 ? '#77cc6d' : '#4a90e2'
-                            }
-                        ]} 
-                    />
-                </View>
-                <Text style={styles.progressText}>{progressPercentage.toFixed(1)}%</Text>
-            </View>
-
-            <View style={styles.footer}>
-                <Text style={styles.dateText}>
-                    {item.startDate} - {item.endDate}
-                </Text>
-            </View>
+            <Text className="text-sm text-white">
+                Goal: ₹{item.targetAmount || item.goal_amount} | Current: ₹
+                {item.currentAmount || item.amount_saved || 0}
+            </Text>
+            <Text className="text-sm text-white mt-1">
+                Start: {formatDate(startDate)} | End: {formatDate(endDate)}
+            </Text>
         </TouchableOpacity>
     )
 }
-
-const styles = StyleSheet.create({
-    container: {
-        backgroundColor: '#0a1e20',
-        borderRadius: 12,
-        padding: 16,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
-        borderWidth: 1,
-        borderColor: '#77cc6d20',
-    },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 12,
-    },
-    title: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#fff',
-        flex: 1,
-    },
-    priorityBadge: {
-        paddingHorizontal: 10,
-        paddingVertical: 4,
-        borderRadius: 12,
-    },
-    priorityText: {
-        color: '#fff',
-        fontSize: 12,
-        fontWeight: 'bold',
-    },
-    amounts: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginBottom: 12,
-    },
-    amountText: {
-        color: '#7c8a93',
-        fontSize: 14,
-    },
-    amountValue: {
-        color: '#fff',
-        fontWeight: '600',
-    },
-    progressContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 8,
-    },
-    progressBackground: {
-        flex: 1,
-        height: 8,
-        backgroundColor: '#071518',
-        borderRadius: 4,
-        marginRight: 10,
-        overflow: 'hidden',
-    },
-    progressBar: {
-        height: '100%',
-        borderRadius: 4,
-    },
-    progressText: {
-        color: '#77cc6d',
-        fontSize: 14,
-        fontWeight: 'bold',
-        width: 45,
-        textAlign: 'right',
-    },
-    footer: {
-        flexDirection: 'row',
-        justifyContent: 'flex-end',
-        marginTop: 4,
-    },
-    dateText: {
-        color: '#7c8a93',
-        fontSize: 12,
-    }
-});
 
 export default GoalItem
