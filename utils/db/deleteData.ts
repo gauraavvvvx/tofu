@@ -5,7 +5,7 @@ import { createGoal } from './createGoal'
 import * as Updates from 'expo-updates'
 export async function deleteUserData() {
     await SQLite.deleteDatabaseAsync('app.db')
-
+    await SQLite.deleteDatabaseAsync('goals')
     console.log('deleted database')
 
     // Reset app state
