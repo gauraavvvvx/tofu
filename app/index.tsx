@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from 'react'
 import { Text, View } from 'react-native'
 import '../global.css'
 import { Link, useRouter } from 'expo-router'
@@ -71,6 +72,14 @@ export default function Index() {
                     Pet a cat to reduce loading time
                 </Text>
             </View>
-        </View>
-    )
+        )
+    } else {
+        return (
+            <BottomNavigation
+                navigationState={{ index, routes }}
+                onIndexChange={setIndex}
+                renderScene={renderScene}
+            />
+        )
+    }
 }
