@@ -10,7 +10,8 @@ export default function Index() {
             <View className="w-full max-w-md p-6 bg-white rounded-2xl shadow-md border border-gray-200">
                 <View className="items-center mb-6">
                     <Text className="text-2xl font-extrabold text-orange-600 mt-6">
-                        Hello, Welcome To T.O.F.{' '}
+                        Hello, Welcome To T.O.F.
+                        <Link href="/(onboarding)/viz">hi</Link>
                     </Text>
                     <Text className="text-base text-gray-600 text-center">
                         Before you can get started, we need to know more about
