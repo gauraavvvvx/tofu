@@ -6,9 +6,9 @@ import { checkIfUserExists } from '@/utils/checkIfUserExists'
 import { BottomNavigation } from 'react-native-paper'
 import GoalsScreen from './goals'
 import HomePage from '@/pages/HomePage'
+import ProfilePage from './profile'
 const ChartsRoute = () => <Text>Charts</Text>
 const HistoryRoute = () => <Text>History</Text>
-const ProfileRoute = () => <Text>Profile</Text>
 export default function Index() {
     const router = useRouter()
     const [isLoading, setIsLoading] = useState(true)
@@ -60,7 +60,7 @@ export default function Index() {
         visualization: ChartsRoute,
         home: HomePage,
         history: HistoryRoute,
-        profile: ProfileRoute,
+        profile: ProfilePage,
     })
     if (isLoading) {
         return (
