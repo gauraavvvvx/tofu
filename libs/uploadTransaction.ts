@@ -1,5 +1,5 @@
 import * as SQLite from 'expo-sqlite'
-import Storage from '@react-native-async-storage/async-storage'
+import { Storage } from 'expo-sqlite/kv-store'
 import { updateGoalWithSavings } from '../utils/db/updateGoalWithSavings'
 import { eventBus, EVENTS } from '../utils/eventBus'
 

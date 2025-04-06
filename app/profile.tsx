@@ -18,6 +18,7 @@ import {
     Save,
     DollarSign,
 } from 'lucide-react-native'
+import { deleteUserData } from '@/utils/db/deleteData'
 
 if (Platform.OS === 'android') {
     UIManager.setLayoutAnimationEnabledExperimental &&
@@ -108,6 +109,14 @@ export default function ProfilePage() {
                     </>
                 ) : (
                     <>
+                        <Button
+                            onPress={() => {
+                                deleteUserData()
+                            }}
+                        >
+                            Delete Account
+                        </Button>
+
                         <View className="flex-row items-center justify-center mb-4 space-x-2">
                             <User size={20} color="#77cc6d" />
                             <Text className="text-xl px-4 text-white font-semibold">
