@@ -1,45 +1,92 @@
-import React from 'react'
-import { ScrollView, Text, View } from 'react-native'
+import React, { useEffect, useState } from 'react'
+import { ScrollView, Text, View, Dimensions } from 'react-native'
 import Plotly from 'react-native-plotly'
 import { fetchAllUserTransactions } from '@/utils/db/fetchAllUserTransactions'
+import { type Transaction } from '@/libs/uploadTransaction'
+import { PieChart, LineChart } from 'lucide-react-native'
+import { WebView } from 'react-native-webview' // Required for Plotly
+
 export default function ChartScreen() {
-	// Pie chart data
-	const user_data = fetchAllUserTransactions()
+	const [transactions, setTransactions] = useState<Transaction[]>([])
+	const screenWidth = Dimensions.get('window').width
+
+	useEffect(() => {
+		const fetchData = async () => {
+			const data = await fetchAllUserTransactions()
+			setTransactions(data)
+		}
+		fetchData()
+	}, [])
+
+	// Add explicit height for chart containers
+	const chartContainerStyle = {
+		height: 300,
+		width: screenWidth - 32,
+		backgroundColor: '#050f10',
+		marginVertical: 16
+	}
+
 	const pieData = [
 		{
 			labels: ['Rent', 'Food', 'Utilities', 'Savings'],
 			values: [50, 80, 40, 95],
 			type: 'pie',
 			marker: {
-				colors: ['#FFA500', '#FF6347', '#90EE90', '#87CEEB'],
+				colors: ['#FFA500', '#c12121', '#90EE90', '#77cc6d'],
 			},
 			textinfo: 'label+percent',
 			insidetextorientation: 'radial',
+			textfont: { color: '#FFFFFF' }, // Add text color
+			hoverinfo: 'label+percent'
 		},
 	]
 
-	// Line chart data
-	const amountSpent = [
-		0, 20, 18, 40, 36, 60, 54, 85, 35, 10, 20, 11, 50, 100, 45,
-	]
+	const pieLayout = {
+		...chartContainerStyle,
+		margin: { t: 40, b: 40 },
+		paper_bgcolor: '#050f10',
+		font: { color: '#FFFFFF' }, // Global text color
+		legend: {
+			orientation: 'h',
+			x: 0.035,
+			font: { color: '#fff' },
+		},
+	}
+
+	const amountSpent = [0, 20, 18, 40, 36, 60, 54, 85, 35, 10, 20, 11, 50, 100, 45]
 	const amountSaved = [0, 10, 8, 58, 56, 78, 74, 98, 100, 87, 27, 40, 13, 55]
-	const labels = [
-		'1',
-		'2',
-		'3',
-		'4',
-		'5',
-		'6',
-		'7',
-		'8',
-		'9',
-		'10',
-		'11',
-		'12',
-		'13',
-		'14',
-		'15',
+	const labels = Array.from({ length: amountSpent.length }, (_, i) => `${i + 1}`)
+
+	const dailySpendingData = [
+		{
+			x: labels,
+			y: amountSpent,
+			type: 'scatter',
+			mode: 'lines+markers+text',
+			name: 'Spending',
+			line: { color: '#c12121', width: 3 },
+			marker: { size: 6 },
+			text: amountSpent.map(String),
+			textposition: 'top center',
+			textfont: { color: '#FFFFFF' },
+		},
 	]
+
+	const dailySpendingLayout = {
+		...chartContainerStyle,
+		paper_bgcolor: '#050f10',
+		plot_bgcolor: '#050f10',
+		xaxis: {
+			title: 'Day',
+			tickfont: { color: '#77cc6d' },
+		},
+		yaxis: {
+			title: 'Amount',
+			tickfont: { color: '#77cc6d' },
+		},
+		margin: { t: 0, b: 20, l: 50, r: 20 },
+		font: { color: '#FFFFFF' },
+	}
 
 	const lineData = [
 		{
@@ -50,7 +97,8 @@ export default function ChartScreen() {
 			name: 'Expenses',
 			text: amountSpent.map(String),
 			textposition: 'top center',
-			line: { color: '#0BA5A4' },
+			line: { color: '#c12121' },
+			textfont: { color: '#FFFFFF' },
 		},
 		{
 			x: labels,
@@ -60,114 +108,89 @@ export default function ChartScreen() {
 			name: 'Savings',
 			text: amountSaved.map(String),
 			textposition: 'top center',
-			line: { color: 'orange' },
+			line: { color: '#77cc6d' },
+			textfont: { color: '#FFFFFF' },
 		},
 	]
-
-	const dailySpendingData = [
-		{
-			x: labels,
-			y: amountSpent,
-			type: 'scatter',
-			mode: 'lines+markers+text',
-			name: 'Spending',
-			line: { color: '#0BA5A4', width: 3 },
-			marker: { size: 6 },
-			text: amountSpent.map((v) => v.toString()),
-			textposition: 'top center',
-		},
-	]
-
-	const dailySpendingLayout = {
-		dragmode: false,
-		autosize: false,
-		height: 300,
-		width: 600,
-		xaxis: {
-			title: 'Day',
-			tickfont: { color: '#333' },
-		},
-		yaxis: {
-			title: 'Amount',
-			tickfont: { color: '#333' },
-		},
-		margin: { t: 0, b: 20, l: 50, r: 20 },
-	}
-
-	const plotlyConfig = {
-		displayModeBar: false,
-		scrollZoom: false,
-		staticPlot: true,
-	}
-
-	const pieLayout = {
-		height: 300,
-		width: 500,
-		margin: { t: 40, b: 40 },
-		legend: {
-			orientation: 'h',
-			x: 0.035,
-		},
-	}
 
 	const lineLayout = {
 		height: 400,
-		width: 700,
-		dragmode: false,
+		width: screenWidth - 32,
+		paper_bgcolor: '#050f10',
+		plot_bgcolor: '#050f10',
 		xaxis: {
 			title: 'Days',
+			tickfont: { color: '#77cc6d' },
 			showgrid: false,
-			tickfont: { color: '#333' },
 		},
 		yaxis: {
 			title: 'Amount',
+			tickfont: { color: '#77cc6d' },
 			showgrid: true,
 		},
 		legend: {
 			x: 0,
 			y: -0.2,
 			orientation: 'h',
+			font: { color: '#fff' },
 		},
 		margin: { t: 20, b: 80 },
+		font: { color: '#FFFFFF' },
 	}
 
 	const config = {
-		scrollZoom: false,
 		displayModeBar: false,
+		staticPlot: false // Enable interactive mode
 	}
 
 	return (
 		<ScrollView
-			className="flex-1 bg-white"
+			className="flex-1 bg-[#050f10]"
 			contentContainerStyle={{ alignItems: 'center', padding: 16 }}
 		>
-			<Text className="text-xl font-bold mb-4">Monthly Spending</Text>
-			<Plotly
-				data={pieData}
-				layout={pieLayout}
-				config={config}
-				style={{ height: 300, width: 500 }}
-			/>
-
-			<View className="flex-1 items-center justify-center bg-white">
-				<Text className="text-xl font-bold mb-4">Daily Spending</Text>
+			{/* Pie Chart Section */}
+			<View className="items-center mb-6">
+				<PieChart size={36} color="#77cc6d" />
+				<Text className="text-2xl text-white font-bold mt-2 mb-4">
+					Monthly Spending
+				</Text>
+			</View>
+			<View style={chartContainerStyle}>
 				<Plotly
-					data={dailySpendingData}
-					layout={dailySpendingLayout}
-					config={plotlyConfig}
-					style={{ height: 300, width: 350 }}
+					data={pieData}
+					layout={pieLayout}
+					config={config}
 				/>
 			</View>
 
-			<Text className="text-xl font-bold my-4">
-				Daily Spending against Savings
-			</Text>
-			<Plotly
-				data={lineData}
-				layout={lineLayout}
-				config={config}
-				style={{ height: 400, width: 350 }}
-			/>
+			{/* Daily Spending Chart Section */}
+			<View className="items-center my-8">
+				<LineChart size={36} color="#77cc6d" />
+				<Text className="text-2xl text-white font-bold mt-2 mb-4">
+					Daily Spending
+				</Text>
+				<View style={chartContainerStyle}>
+					<Plotly
+						data={dailySpendingData}
+						layout={dailySpendingLayout}
+						config={config}
+					/>
+				</View>
+			</View>
+
+			{/* Daily Spending vs Savings Chart Section */}
+			<View className="items-center my-8">
+				<Text className="text-2xl text-white font-bold mt-2 mb-4">
+					Daily Spending vs Savings
+				</Text>
+				<View style={{ height: 400, width: screenWidth - 32 }}>
+					<Plotly
+						data={lineData}
+						layout={lineLayout}
+						config={config}
+					/>
+				</View>
+			</View>
 		</ScrollView>
 	)
 }

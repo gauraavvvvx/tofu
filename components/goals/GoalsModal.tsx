@@ -103,14 +103,15 @@ const GoalsModal = ({
 									onValueChange={(value) =>
 										setNewGoal({ ...newGoal, priority: value })
 									}
+
 									mode="dropdown"
 									style={styles.picker}
 									dropdownIconColor="#77cc6d"
 								>
-									<Picker.Item label="Low" value="LOW" color="#fff" />
-									<Picker.Item label="Moderate" value="MODERATE" color="#fff" />
-									<Picker.Item label="High" value="HIGH" color="#fff" />
-									<Picker.Item label="Very High" value="VERY_HIGH" color="#fff" />
+									<Picker.Item label="Low" value="LOW" color="#000" />
+									<Picker.Item label="Moderate" value="MODERATE" color="#000" />
+									<Picker.Item label="High" value="HIGH" color="#000" />
+									<Picker.Item label="Very High" value="VERY_HIGH" color="#000" />
 								</Picker>
 							</View>
 
@@ -195,7 +196,7 @@ const styles = StyleSheet.create({
 		marginBottom: 16,
 	},
 	pickerLabel: {
-		color: '#fff',
+		color: '#000',
 		marginBottom: 8,
 	},
 	picker: {
