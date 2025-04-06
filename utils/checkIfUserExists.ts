@@ -1,7 +1,7 @@
 import * as SQLite from 'expo-sqlite'
 
 export async function checkIfUserExists() {
-    const db = await SQLite.openDatabaseAsync('./db/user.db')
+    const db = await SQLite.openDatabaseAsync('app.db')
 
     await db.execAsync(`
         PRAGMA journal_mode = WAL;
@@ -14,7 +14,7 @@ export async function checkIfUserExists() {
     `)
 
     const result = await db.getFirstAsync('SELECT * FROM user LIMIT 1')
-    console.log(result)
+    console.log('printing from userExistsFunction', result)
     await db.closeAsync()
 
     return result != null

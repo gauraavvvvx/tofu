@@ -14,7 +14,7 @@ import DateTimePicker from '@react-native-community/datetimepicker'
 import { useRouter } from 'expo-router'
 import { Storage } from 'expo-sqlite/kv-store'
 import React from 'react'
-
+import * as Updates from 'expo-updates'
 export default function RecurringPayment() {
     const router = useRouter()
     const [showForm, setShowForm] = useState(false)
@@ -67,7 +67,7 @@ export default function RecurringPayment() {
         setShowDatePicker(false)
     }
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (payments.length === 0) {
             setError('Please add at least one recurring payment.')
             return
@@ -81,7 +81,7 @@ export default function RecurringPayment() {
                 console.error('Error saving recurring payments:', error)
             })
         // Navigate to the next page or perform any other action
-        router.dismissAll() // Replace '/next-page' with the actual route
+        await Updates.reloadAsync()
     }
 
     return (

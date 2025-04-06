@@ -3,20 +3,65 @@ import { Text, View } from 'react-native'
 import '../global.css'
 import { Link, useRouter } from 'expo-router'
 import { checkIfUserExists } from '@/utils/checkIfUserExists'
-
+import { BottomNavigation } from 'react-native-paper'
+import GoalsScreen from './goals'
+import HomePage from '@/pages/HomePage'
+const ChartsRoute = () => <Text>Charts</Text>
+const HistoryRoute = () => <Text>History</Text>
+const ProfileRoute = () => <Text>Profile</Text>
 export default function Index() {
     const router = useRouter()
     const [isLoading, setIsLoading] = useState(true)
     useEffect(() => {
         checkIfUserExists().then((userExists) => {
-            console.log('User exists:', userExists)
-            if (!userExists) {
-                router.replace('/(onboarding)')
-            } else {
+            if (userExists) {
                 setIsLoading(false)
+            } else {
+                router.push('/(onboarding)')
             }
         })
     }, [])
+    const [index, setIndex] = React.useState(2) // Center tab (Home)
+    const [routes] = React.useState([
+        {
+            key: 'goals',
+            title: 'Goals',
+            focusedIcon: 'target',
+            unfocusedIcon: 'target-variant',
+        },
+        {
+            key: 'visualization',
+            title: 'Charts',
+            focusedIcon: 'chart-bar',
+            unfocusedIcon: 'chart-bar',
+        },
+        {
+            key: 'home',
+            title: 'Home',
+            focusedIcon: 'home-circle',
+            unfocusedIcon: 'home-outline',
+        },
+        {
+            key: 'history',
+            title: 'History',
+            focusedIcon: 'history',
+            unfocusedIcon: 'history',
+        },
+        {
+            key: 'profile',
+            title: 'Profile',
+            focusedIcon: 'account-circle',
+            unfocusedIcon: 'account-circle-outline',
+        },
+    ])
+
+    const renderScene = BottomNavigation.SceneMap({
+        goals: GoalsScreen,
+        visualization: ChartsRoute,
+        home: HomePage,
+        history: HistoryRoute,
+        profile: ProfileRoute,
+    })
     if (isLoading) {
         return (
             <View>
@@ -30,9 +75,11 @@ export default function Index() {
         )
     } else {
         return (
-            <View>
-                <Text>hello there this is the home Page</Text>
-            </View>
+            <BottomNavigation
+                navigationState={{ index, routes }}
+                onIndexChange={setIndex}
+                renderScene={renderScene}
+            />
         )
     }
 }

@@ -19,7 +19,7 @@ export default function PersonalDetails() {
 
     const handleSubmit = async () => {
         console.log('Submitting user details...')
-        const db = await SQLite.openDatabaseAsync('./db/user.db')
+        const db = await SQLite.openDatabaseAsync('app.db')
         console.log('Database opened successfully')
         await db.execAsync(`
 			PRAGMA journal_mode = WAL;
