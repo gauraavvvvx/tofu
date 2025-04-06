@@ -34,7 +34,7 @@ const GoalsList = ({ goals, onDeleteGoal, refreshing, onRefresh }) => {
                 <RefreshControl
                     refreshing={refreshing}
                     onRefresh={onRefresh}
-                    tintColor="#77cc6d"
+                    tintColor="#28272d"
                 />
             }
         />
@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
     },
     emptyText: {
         fontSize: 16,
-        color: '#77cc6d',
+        color: '#28272d',
         textAlign: 'center',
     },
 })

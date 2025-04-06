@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { View, Text, TouchableOpacity, RefreshControl } from 'react-native'
+import { View, Text, TouchableOpacity } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { StatusBar } from 'expo-status-bar'
 import GoalsList from '@/components/goals/GoalsList'
@@ -116,21 +116,14 @@ export default function GoalsScreen() {
     }
 
     return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: '#050f10' }}>
+        <SafeAreaView className="flex-1 bg-[#050f10]">
             <StatusBar style="light" />
-            <View style={{ flex: 1, padding: 16 }}>
-                <Text
-                    style={{
-                        fontSize: 24,
-                        fontWeight: 'bold',
-                        color: '#fff',
-                        marginBottom: 16,
-                    }}
-                >
+            <View className="flex-1 p-4">
+                <Text className="text-2xl font-bold text-white mb-4">
                     Goals
                 </Text>
 
-                {/* Replace the ScrollView with just the GoalsList that has its own refreshing capability */}
+                {/* GoalsList with its own refreshing capability */}
                 <GoalsList
                     goals={goals}
                     onDeleteGoal={deleteGoal}
@@ -141,17 +134,9 @@ export default function GoalsScreen() {
                 {/* Refresh Button */}
                 <TouchableOpacity
                     onPress={fetchGoals}
+                    className="absolute right-5 bottom-24 w-[60px] h-[60px] bg-[#28272d] rounded-full justify-center items-center shadow-lg"
                     style={{
-                        backgroundColor: '#77cc6d',
-                        borderRadius: 50,
-                        width: 60,
-                        height: 60,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        position: 'absolute',
-                        right: 20,
-                        bottom: 100,
-                        shadowColor: '#77cc6d',
+                        shadowColor: '#28272d',
                         shadowOffset: { width: 0, height: 2 },
                         shadowOpacity: 0.4,
                         shadowRadius: 3,
@@ -164,17 +149,9 @@ export default function GoalsScreen() {
                 {/* Add Goal Button */}
                 <TouchableOpacity
                     onPress={() => setModalVisible(true)}
+                    className="absolute right-5 bottom-5 w-[60px] h-[60px] bg-[#28272d] rounded-full justify-center items-center shadow-lg"
                     style={{
-                        backgroundColor: '#77cc6d',
-                        borderRadius: 50,
-                        width: 60,
-                        height: 60,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        position: 'absolute',
-                        right: 20,
-                        bottom: 20,
-                        shadowColor: '#77cc6d',
+                        shadowColor: '#28272d',
                         shadowOffset: { width: 0, height: 2 },
                         shadowOpacity: 0.4,
                         shadowRadius: 3,
