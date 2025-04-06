@@ -3,6 +3,7 @@ import { TextInput } from 'react-native-paper'
 import { useState } from 'react'
 import { router } from 'expo-router'
 import React from 'react'
+import Storage from 'expo-sqlite/kv-store'
 
 export default function OnboardingScreen() {
     const [value, setValue] = useState('')

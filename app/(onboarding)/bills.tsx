@@ -12,8 +12,9 @@ import {
 import { TextInput, Button } from 'react-native-paper'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import { useRouter } from 'expo-router'
+import { Storage } from 'expo-sqlite/kv-store'
 import React from 'react'
-
+import * as Updates from 'expo-updates'
 export default function RecurringPayment() {
     const router = useRouter()
     const [showForm, setShowForm] = useState(false)
@@ -49,8 +50,9 @@ export default function RecurringPayment() {
             amount: amount.trim(),
             date: formattedDate,
         }
-
         setPayments((prev) => [...prev, newPayment])
+
+        // Reset form
         setLabel('')
         setAmount('')
         setRecurringDate(null)
@@ -65,18 +67,34 @@ export default function RecurringPayment() {
         setShowDatePicker(false)
     }
 
+    const handleSubmit = async () => {
+        if (payments.length === 0) {
+            setError('Please add at least one recurring payment.')
+            return
+        }
+        // Save payments to local storage or database
+        Storage.setItem('recurringPayments', JSON.stringify(payments))
+            .then(() => {
+                console.log('Recurring payments saved:', payments)
+            })
+            .catch((error) => {
+                console.error('Error saving recurring payments:', error)
+            })
+        // Navigate to the next page or perform any other action
+        await Updates.reloadAsync()
+    }
+
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <KeyboardAvoidingView
-                className="flex-1 px-6 pt-12"
-                style={{ backgroundColor: '#050f10' }}
+                className="flex-1 bg-orange-50 px-6 pt-12"
                 behavior={Platform.OS === 'ios' ? 'padding' : undefined}
             >
                 <View className="items-center mb-6">
-                    <Text className="text-3xl font-bold text-[#77cc6d] mb-2">
+                    <Text className="text-3xl font-bold text-gray-800 mb-2">
                         Recurring Payments
                     </Text>
-                    <Text className="text-gray-400 text-center">
+                    <Text className="text-gray-600 text-center">
                         Set up automatic bills or subscriptions
                     </Text>
                 </View>
@@ -89,17 +107,13 @@ export default function RecurringPayment() {
                             setTimeout(() => inputRef.current?.focus(), 100)
                         }}
                         className="mb-6"
-                        buttonColor="#77cc6d"
-                        labelStyle={{ fontWeight: 'bold', color: '#050f10' }}
+                        buttonColor="#fb923c"
                     >
                         Create Recurring Payment
                     </Button>
                 ) : (
-                    <View
-                        className="w-full max-w-md rounded-2xl p-5 mb-8 self-center"
-                        style={{ backgroundColor: '#0c1a1c' }}
-                    >
-                        <Text className="text-xl font-semibold text-center mb-4 text-[#77cc6d]">
+                    <View className="w-full max-w-md bg-white rounded-2xl p-5 shadow-md mb-8 self-center">
+                        <Text className="text-xl font-semibold text-center mb-4 text-gray-800">
                             New Recurring Payment
                         </Text>
 
@@ -111,54 +125,38 @@ export default function RecurringPayment() {
                                 setLabel(text)
                                 setError('')
                             }}
-                            textColor="#ffffff"
                             mode="outlined"
-                            theme={{
-                                colors: {
-                                    primary: '#77cc6d',
-                                    text: '#ffffff',
-                                    placeholder: '#999',
-                                },
-                            }}
-                            style={{
-                                backgroundColor: '#0c1a1c',
-                                marginBottom: 16,
-                            }}
                         />
 
-                        <View
-                            className="flex-row items-center border rounded-lg px-4 h-12 mb-4"
-                            style={{ borderColor: '#1a2b2c' }}
-                        >
-                            <Text className="text-lg text-[#77cc6d] mr-2">
-                                ₹
+                        <View className="flex-row items-center pt-4 border border-gray-300 rounded-lg px-4 h-12 mb-4">
+                            <Text className="text-lg text-gray-700 mr-2">
+                                $
                             </Text>
                             <TextInput
                                 value={amount}
                                 onChangeText={handleAmountChange}
                                 keyboardType="numeric"
                                 placeholder="0"
-                                placeholderTextColor="#999999"
                                 mode="flat"
                                 style={{
                                     flex: 1,
                                     height: '100%',
-                                    color: '#ffffff',
                                     backgroundColor: 'transparent',
                                 }}
-                                textColor="#ffffff"
-                                underlineColor="transparent"
-                                activeUnderlineColor="transparent"
+                                contentStyle={{ textAlignVertical: 'center' }}
                             />
                         </View>
 
                         <TouchableOpacity
                             onPress={() => setShowDatePicker(true)}
-                            className="border rounded-lg h-12 px-4 justify-center mb-4"
-                            style={{ borderColor: '#1a2b2c' }}
+                            className="border border-gray-300 rounded-lg h-12 px-4 justify-center mb-4"
                         >
                             <Text
-                                className={`text-base ${recurringDate ? 'text-white' : 'text-gray-400'}`}
+                                className={`text-base ${
+                                    recurringDate
+                                        ? 'text-gray-800'
+                                        : 'text-gray-400'
+                                }`}
                             >
                                 {recurringDate
                                     ? recurringDate.toLocaleDateString(
@@ -168,17 +166,17 @@ export default function RecurringPayment() {
                                               month: 'long',
                                           }
                                       )
-                                    : 'Select recurring date'}
+                                    : 'Select recurring day and month'}
                             </Text>
                         </TouchableOpacity>
 
                         {error ? (
-                            <Text className="text-[#c12121] text-sm mb-3 text-center">
+                            <Text className="text-red-500 text-sm mb-3 text-center">
                                 {error}
                             </Text>
                         ) : null}
 
-                        <View className="flex-row justify-between mt-2">
+                        <View className="flex-row justify-between">
                             <Button
                                 mode="outlined"
                                 onPress={() => {
@@ -188,20 +186,10 @@ export default function RecurringPayment() {
                                     setShowForm(false)
                                     setError('')
                                 }}
-                                textColor="#77cc6d"
-                                style={{ borderColor: '#77cc6d' }}
                             >
                                 Cancel
                             </Button>
-                            <Button
-                                mode="contained"
-                                onPress={handleCreate}
-                                buttonColor="#77cc6d"
-                                labelStyle={{
-                                    fontWeight: 'bold',
-                                    color: '#050f10',
-                                }}
-                            >
+                            <Button mode="contained" onPress={handleCreate}>
                                 Save
                             </Button>
                         </View>
@@ -225,23 +213,17 @@ export default function RecurringPayment() {
                         className="w-full max-w-md self-center"
                         contentContainerStyle={{ paddingBottom: 40 }}
                         renderItem={({ item }) => (
-                            <View
-                                className="flex-row justify-between items-center px-4 py-3 mb-3 rounded-xl border"
-                                style={{
-                                    backgroundColor: '#0c1a1c',
-                                    borderColor: '#1a2b2c',
-                                }}
-                            >
+                            <View className="flex-row justify-between items-center bg-white px-4 py-3 mb-3 rounded-xl shadow-sm border border-gray-200">
                                 <View>
-                                    <Text className="text-base font-semibold text-white">
+                                    <Text className="text-base font-semibold text-gray-800">
                                         {item.label}
                                     </Text>
-                                    <Text className="text-sm text-gray-400">
+                                    <Text className="text-sm text-gray-500">
                                         {item.date}
                                     </Text>
                                 </View>
-                                <Text className="text-base text-[#77cc6d] font-bold">
-                                    ₹{item.amount}
+                                <Text className="text-base text-gray-700">
+                                    ₦{item.amount}
                                 </Text>
                             </View>
                         )}
@@ -254,14 +236,14 @@ export default function RecurringPayment() {
                     </View>
                 )}
 
-                {/* Back Navigation */}
-                <View className="mt-10 mb-6 items-center">
+                {/* Submit Button */}
+                <View className="mt-10">
                     <Button
-                        mode="text"
-                        onPress={() => router.navigate('/home-page')}
-                        labelStyle={{ color: '#77cc6d' }}
+                        mode="contained"
+                        onPress={handleSubmit}
+                        buttonColor="#fb923c"
                     >
-                        ← Back to Home
+                        Submit
                     </Button>
                 </View>
             </KeyboardAvoidingView>
