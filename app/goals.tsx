@@ -1,8 +1,19 @@
 import React, { useState, useEffect } from 'react'
-import { View, Text, Button } from 'react-native'
+import {
+    View,
+    Text,
+    TouchableOpacity,
+    StatusBar,
+    SafeAreaView,
+    ScrollView,
+} from 'react-native'
 import GoalsList from '@/components/goals/GoalsList'
 import GoalsModal from '@/components/goals/GoalsModal'
 import { prioritiesOrder } from '../utils/priorities'
+import { createGoal, Goal } from '../utils/db/createGoal'
+import { fetchGoalsFromDB } from '../utils/db/fetchGoals'
+import { deleteGoalFromDB } from '../utils/db/deleteGoal'
+import { Ionicons } from '@expo/vector-icons'
 
 export default function GoalsScreen() {
     const [goals, setGoals] = useState([])
@@ -10,7 +21,6 @@ export default function GoalsScreen() {
     const [isStartDatePickerVisible, setStartDatePickerVisible] =
         useState(false)
     const [isEndDatePickerVisible, setEndDatePickerVisible] = useState(false)
-
     const [newGoal, setNewGoal] = useState({
         name: '',
         start_date: '',
@@ -20,48 +30,50 @@ export default function GoalsScreen() {
         priority: 'MODERATE',
     })
 
-    // Fetch goals from database (mocked here)
+    // Fetch goals from database
     const fetchGoals = async () => {
-        const fetchedGoals = [
-            {
-                id: '1',
-                name: 'Buy a car',
-                start_date: '2025-04-01',
-                end_date: '2025-12-31',
-                goal_amount: 10000,
-                amount_saved: 2000,
-                priority: 'VERY_HIGH',
-            },
-            {
-                id: '2',
-                name: 'Vacation',
-                start_date: '2025-06-01',
-                end_date: '2025-08-31',
-                goal_amount: 5000,
-                amount_saved: 1000,
-                priority: 'HIGH',
-            },
-        ]
-
-        const sortedGoals = fetchedGoals.sort(
-            (a, b) => prioritiesOrder[b.priority] - prioritiesOrder[a.priority]
-        )
-        setGoals(sortedGoals)
+        try {
+            const dbGoals = await fetchGoalsFromDB()
+            const sortedGoals = dbGoals.sort((a, b) => b.priority - a.priority)
+            setGoals(sortedGoals)
+        } catch (error) {
+            console.error('Error fetching goals:', error)
+        }
     }
 
     useEffect(() => {
         fetchGoals()
     }, [])
 
-    const addGoal = () => {
-        console.log('Adding goal:', newGoal)
+    const addGoal = async () => {
+        // Map newGoal state to the Goal type required by createGoal
+        const goal: Goal = {
+            id: 0, // placeholder, as the DB auto-increments the ID
+            startDate: newGoal.start_date,
+            endDate: newGoal.end_date,
+            name: newGoal.name,
+            targetAmount: parseFloat(newGoal.goal_amount) || 0,
+            currentAmount: parseFloat(newGoal.amount_saved) || 0,
+            priority: prioritiesOrder[newGoal.priority],
+            completed: false,
+        }
+        console.log('Adding goal:', goal)
+        await createGoal(goal)
         fetchGoals()
         setModalVisible(false)
     }
 
-    const deleteGoal = (id) => {
-        console.log('Deleting goal:', id)
-        fetchGoals()
+    const deleteGoal = async (id) => {
+        try {
+            console.log('Deleting goal:', id)
+            const success = await deleteGoalFromDB(id)
+            if (success) {
+                // Refresh the goals list after successful deletion
+                fetchGoals()
+            }
+        } catch (error) {
+            console.error('Error deleting goal:', error)
+        }
     }
 
     const handleStartDateConfirm = (date) => {
@@ -75,31 +87,65 @@ export default function GoalsScreen() {
     }
 
     return (
-        <View className="flex-1 bg-gray-100 p-4">
-            <Text className="text-center text-xl font-bold mb-4">Goals</Text>
+        <SafeAreaView style={{ flex: 1, backgroundColor: '#050f10' }}>
+            <StatusBar barStyle="light-content" backgroundColor="#050f10" />
+            <View style={{ flex: 1, padding: 16 }}>
+                <Text
+                    style={{
+                        fontSize: 24,
+                        fontWeight: 'bold',
+                        color: '#fff',
+                        marginBottom: 16,
+                    }}
+                >
+                    Goals
+                </Text>
 
-            {/* Goals List */}
-            <GoalsList goals={goals} onDeleteGoal={deleteGoal} />
+                {/* Goals List */}
+                <ScrollView style={{ flex: 1 }}>
+                    <GoalsList goals={goals} onDeleteGoal={deleteGoal} />
+                </ScrollView>
 
-            {/* Add Goal Button */}
-            <Button title="Add Goal" onPress={() => setModalVisible(true)} />
+                {/* Add Goal Button */}
+                <TouchableOpacity
+                    onPress={() => setModalVisible(true)}
+                    style={{
+                        backgroundColor: '#77cc6d',
+                        borderRadius: 50,
+                        width: 60,
+                        height: 60,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        position: 'absolute',
+                        right: 20,
+                        bottom: 20,
+                        shadowColor: '#77cc6d',
+                        shadowOffset: { width: 0, height: 2 },
+                        shadowOpacity: 0.4,
+                        shadowRadius: 3,
+                        elevation: 5,
+                    }}
+                >
+                    <Ionicons name="add" size={30} color="#fff" />
+                </TouchableOpacity>
 
-            {/* Modal */}
-            {modalVisible && (
-                <GoalsModal
-                    modalVisible={modalVisible}
-                    setModalVisible={setModalVisible}
-                    newGoal={newGoal}
-                    setNewGoal={setNewGoal}
-                    isStartDatePickerVisible={isStartDatePickerVisible}
-                    setStartDatePickerVisible={setStartDatePickerVisible}
-                    isEndDatePickerVisible={isEndDatePickerVisible}
-                    setEndDatePickerVisible={setEndDatePickerVisible}
-                    handleStartDateConfirm={handleStartDateConfirm}
-                    handleEndDateConfirm={handleEndDateConfirm}
-                    addGoal={addGoal}
-                />
-            )}
-        </View>
+                {/* Modal */}
+                {modalVisible && (
+                    <GoalsModal
+                        modalVisible={modalVisible}
+                        setModalVisible={setModalVisible}
+                        newGoal={newGoal}
+                        setNewGoal={setNewGoal}
+                        isStartDatePickerVisible={isStartDatePickerVisible}
+                        setStartDatePickerVisible={setStartDatePickerVisible}
+                        isEndDatePickerVisible={isEndDatePickerVisible}
+                        setEndDatePickerVisible={setEndDatePickerVisible}
+                        handleStartDateConfirm={handleStartDateConfirm}
+                        handleEndDateConfirm={handleEndDateConfirm}
+                        addGoal={addGoal}
+                    />
+                )}
+            </View>
+        </SafeAreaView>
     )
 }
